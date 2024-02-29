@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import handleMongooseError from "../helpers/handleMongooseError.js";
 const contactSchema = new mongoose.Schema(
     {
         name: {
@@ -21,12 +22,5 @@ const contactSchema = new mongoose.Schema(
 
 contactSchema.post("save", handleMongooseError);
 
-const ContactsModel = model("contact", contactSchema);
+export const ContactsModel = mongoose.model("contact", contactSchema);
 
-
-export {
-  ContactsModel,
-  createContactSchema,
-  updateContactSchema,
-  updateStatusContactSchema,
-};
