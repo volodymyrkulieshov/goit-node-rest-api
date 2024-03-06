@@ -25,4 +25,3 @@ export const createContactSchema = Joi.object({
   export const updateStatusContactSchema = Joi.object({
     favorite: Joi.boolean().required(),
   });
-
