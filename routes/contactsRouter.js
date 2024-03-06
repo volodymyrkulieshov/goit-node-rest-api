@@ -37,5 +37,3 @@ contactsRouter.patch(
 
 export default contactsRouter;
 
-export default contactsRouter;
-
