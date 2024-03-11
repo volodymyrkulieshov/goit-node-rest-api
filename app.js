@@ -5,7 +5,7 @@ import morgan from "morgan";
 import cors from "cors";
 
 import contactsRouter from "./routes/contactsRouter.js";
-import { usersRouter } from "./routes/usersRoutes.js";
+import usersRouter from "./routes/usersRoutes.js";
 
 import "./db.js";
 

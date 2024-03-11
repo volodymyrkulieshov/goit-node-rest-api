@@ -14,7 +14,7 @@ import {
   updateSubscriptionUserSchema,
 } from "../schemas/usersSchemas.js";
 
-export const usersRouter = express.Router();
+const usersRouter = express.Router();
 
 usersRouter.post("/register", validateBody(registerSchema), register);
 
@@ -30,3 +30,6 @@ usersRouter.patch(
   validateBody(updateSubscriptionUserSchema),
   updateSubscription
 );
+
+export default usersRouter;
+
