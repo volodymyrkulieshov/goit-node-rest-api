@@ -3,10 +3,16 @@ import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 import { UsersModel } from "../models/usersModel.js";
 import HttpError from "../helpers/HttpError.js";
+import gravatar from "gravatar";
+import path from "path";
+import fs from "fs/promises";
+import Jimp from "jimp";
 
 dotenv.config();
 
 const { SECRET_KEY } = process.env;
+
+// const avatarDir = getDir("../public/avatars");
 
 export const register = async (req, res, next) => {
   try {
@@ -15,13 +21,21 @@ export const register = async (req, res, next) => {
     if (registeredEmail) {
       throw HttpError(409, "Email in use");
     }
+
+    const avatarURL = gravatar.url(email);
+
     const hashPassword = await bcrypt.hash(password, 10);
     const newUser = await UsersModel.create({
       ...req.body,
       password: hashPassword,
+      avatarURL,
     });
     res.status(201).json({
-      user: { email: newUser.email, subscription: newUser.subscription },
+      user: {
+        email: newUser.email,
+        subscription: newUser.subscription,
+        avatarURL: newUser.avatarURL,
+      },
     });
   } catch (error) {
     next(error);
@@ -78,6 +92,31 @@ export const updateSubscription = async (req, res, next) => {
     const { _id, email } = req.user;
     await UsersModel.findByIdAndUpdate(_id, { subscription });
     res.json({ user: { email, subscription: subscription } });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const uploadAvatar = async (req, res, next) => {
+  try {
+    const { _id } = req.user;
+    if (!req.file) {
+      return res.status(400).send({ message: "File not uploaded" });
+    }
+    const { path: tempUpload, originalname } = req.file;
+
+    const filename = `${_id}_${originalname}`;
+
+    const resultUpload = path.join("public", "avatars", filename);
+
+    const img = await Jimp.read(tempUpload);
+    img.resize(250, 250).write(tempUpload);
+
+    await fs.rename(tempUpload, resultUpload);
+
+    const avatarURL = path.join("avatars", filename);
+    await UsersModel.findByIdAndUpdate(_id, { avatarURL });
+    res.json({ avatarURL });
   } catch (error) {
     next(error);
   }
