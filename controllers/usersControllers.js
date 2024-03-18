@@ -7,12 +7,14 @@ import gravatar from "gravatar";
 import path from "path";
 import fs from "fs/promises";
 import Jimp from "jimp";
+import sendEmail from "../helpers/sendEmail.js";
 
 dotenv.config();
 
 const { SECRET_KEY } = process.env;
 
 // const avatarDir = getDir("../public/avatars");
+
 
 export const register = async (req, res, next) => {
   try {
@@ -25,11 +27,22 @@ export const register = async (req, res, next) => {
     const avatarURL = gravatar.url(email);
 
     const hashPassword = await bcrypt.hash(password, 10);
+    const verifyToken = crypto.randomUUID();
     const newUser = await UsersModel.create({
       ...req.body,
       password: hashPassword,
       avatarURL,
+      verifyToken,
     });
+
+    const mail = {
+      to: email,
+      subject: "Digital PhoneBook. Verify your email",
+      html: `To confirm you registration please click on the <a href="http://localhost:3000/api/users/verify/${verifyToken}">Verify email</a>`,
+    };
+
+    await sendEmail(mail);
+
     res.status(201).json({
       user: {
         email: newUser.email,
@@ -53,6 +66,13 @@ export const login = async (req, res, next) => {
     if (!passwordCompare) {
       throw HttpError(401, "Email or password is wrong");
     }
+
+    if (!user.verify) {
+      return res
+        .status(401)
+        .json({ message: "Email not verified. Access denied" });
+    }
+
     const payload = {
       id: user._id,
     };
