@@ -5,9 +5,11 @@ import {
   logout,
   getCurrent,
   updateSubscription,
+  uploadAvatar,
 } from "../controllers/usersControllers.js";
 import validateBody from "../helpers/validateBody.js";
 import { authenticate } from "../middlewares/auth.js";
+import upload from "../middlewares/upload.js";
 import {
   registerSchema,
   loginSchema,
@@ -30,6 +32,11 @@ usersRouter.patch(
   validateBody(updateSubscriptionUserSchema),
   updateSubscription
 );
+usersRouter.patch(
+  "/avatars",
+  authenticate,
+  upload.single("avatar"),
+  uploadAvatar
+);
 
 export default usersRouter;
-
