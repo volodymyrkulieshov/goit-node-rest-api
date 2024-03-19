@@ -20,8 +20,12 @@ export const updateSubscriptionUserSchema = Joi.object({
     .required(),
 });
 
-export default {
-  registerSchema,
-  loginSchema,
-  updateSubscriptionUserSchema,
-};
+export const emailVerificationSchema = Joi.object({
+  email: Joi.string().required(),
+});
+
+// export default {
+//   registerSchema,
+//   loginSchema,
+//   updateSubscriptionUserSchema,
+// };
